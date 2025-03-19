@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=P@ssw0rd
+      - POSTGRES_USER=gopy-art
+      - POSTGRES_DB=zschedule
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=0
+
+  grafana:
+    image: grafana/grafana:9.3.0
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=qazXSW
+    volumes:
+      - ./grafana/datasources.yaml:/home/gopy/Documents/zschedule/docker/datasources.yaml
+
+  prometheus:
+    image: prom/prometheus:v2.21.0
+    ports:
+      - 9090:9090
+    volumes:
+      - /home/gopy/Documents/zschedule/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml

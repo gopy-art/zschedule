@@ -1,0 +1,7 @@
+- COMMAND: "docker ps"
+  INTERVAL: 1
+  LIMIT: 10       # infinite = -1 | or set a number
+
+- COMMAND: "docker images"
+  INTERVAL: 1
+  LIMIT: -1

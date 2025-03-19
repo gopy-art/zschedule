@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"zschedule/api"
 	"zschedule/cmd"
 	logger "zschedule/log"
+
+	"github.com/joho/godotenv"
 )
 
 func init() {
@@ -12,6 +15,19 @@ func init() {
 
 	// set the flags
 	cmd.Execute()
+
+	// validate flags
+	cmd.Validate()
+
+	// init env
+	if cmd.Type == "api" {
+		if cmd.EnvFile != "" {
+			if err := godotenv.Load(cmd.EnvFile); err != nil {
+				fmt.Printf("error in load the .env file, error = %v\n", err)
+				os.Exit(1)
+			}
+		}
+	}
 
 	// init logger
 	if cmd.Logger == "stdout" {
@@ -22,5 +38,9 @@ func init() {
 }
 
 func main() {
-	fmt.Println("hello world")
+	if cmd.Type == "cli" {
+
+	} else if cmd.Type == "api" {
+		api.Server()
+	}
 }
