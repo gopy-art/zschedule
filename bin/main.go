@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"zschedule/api"
+	"zschedule/cli"
 	"zschedule/cmd"
 	logger "zschedule/log"
 
@@ -39,7 +40,11 @@ func init() {
 
 func main() {
 	if cmd.Type == "cli" {
-
+		schedulerConfig, err := cli.NewScheduler()
+		if err != nil {
+			logger.ErrorLogger.Fatalf("error in make new instance of the scheduler, error = %v \n", err)
+		}
+		schedulerConfig.Run()
 	} else if cmd.Type == "api" {
 		api.Server()
 	}

@@ -1,7 +1,9 @@
-- COMMAND: "docker ps"
-  INTERVAL: 1
+- NAME: "docker list containers"
+  COMMAND: "docker ps"
+  INTERVAL: 30
   LIMIT: 10       # infinite = -1 | or set a number
 
-- COMMAND: "docker images"
-  INTERVAL: 1
+- NAME: "docker list images"
+  COMMAND: "docker images"
+  INTERVAL: 15
   LIMIT: -1
