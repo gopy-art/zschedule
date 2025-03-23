@@ -1,11 +1,13 @@
 package worker
 
 import (
+	"fmt"
 	"os/exec"
 	"time"
 	"zschedule/api/model"
 	logger "zschedule/log"
 
+	"github.com/gopy-art/zrediss/connection"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +15,7 @@ var DataPool chan model.ScheduleAPI = make(chan model.ScheduleAPI, 1)
 
 type ScheduleWorker struct {
 	NumberOfWorkers int `json:"number_of_workers"`
+	Cache           connection.RedisConnection
 }
 
 func (w *ScheduleWorker) CheckForRun(db *gorm.DB) {
@@ -53,6 +56,13 @@ func (w *ScheduleWorker) Run(db *gorm.DB) {
 			logger.ErrorLogger.Printf("error in run this command { %v }, error = %v|%s \n", task.Command, err, result)
 		} else {
 			logger.SuccessLogger.Printf("The output for this command { %v } is like :\n\n%s\n", task.Command, result)
+		}
+
+		if _, err := w.Cache.SetKeyWithValue(
+			fmt.Sprintf("%v - %v", task.Name, time.Now().Format("2006-01-02 15:04:05")),
+			fmt.Sprintf("OUTPUT : %v", string(result)),
+		); err != nil {
+			logger.ErrorLogger.Printf("error in set output in the cache, error = %v\n", err)
 		}
 
 		logger.SuccessLogger.Printf("The [ %v ] command has been executed for the %d time", task.Name, task.Current+1)

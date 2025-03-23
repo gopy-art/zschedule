@@ -21,13 +21,14 @@ func init() {
 	cmd.Validate()
 
 	// init env
-	if cmd.Type == "api" {
-		if cmd.EnvFile != "" {
-			if err := godotenv.Load(cmd.EnvFile); err != nil {
-				fmt.Printf("error in load the .env file, error = %v\n", err)
-				os.Exit(1)
-			}
+	if cmd.EnvFile != "" {
+		if err := godotenv.Load(cmd.EnvFile); err != nil {
+			fmt.Printf("error in load the .env file, error = %v\n", err)
+			os.Exit(1)
 		}
+	} else {
+		fmt.Println("--env should be set")
+		os.Exit(1)
 	}
 
 	// init logger

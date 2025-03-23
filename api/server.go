@@ -1,6 +1,7 @@
 package api
 
 import (
+	"os"
 	"zschedule/api/database"
 	"zschedule/api/handler"
 	"zschedule/api/model"
@@ -8,6 +9,7 @@ import (
 	logger "zschedule/log"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gopy-art/zrediss/connection"
 )
 
 func Server() {
@@ -24,6 +26,15 @@ func Server() {
 
 	{
 		wschedule := new(worker.ScheduleWorker)
+		if os.Getenv("CACHE_ADDRESS") == "" {
+			logger.ErrorLogger.Fatalf("CACHE_ADDRESS is empty in .env file")
+		}
+		wschedule.Cache = connection.RedisConnection{
+			RedisAddress: os.Getenv("CACHE_ADDRESS"),
+		}
+		if err := wschedule.Cache.InitConnection(); err != nil {
+			logger.ErrorLogger.Fatalf("error in connect to redis, error = %v", err)
+		}
 		go wschedule.Run(db.DB)
 		go wschedule.CheckForRun(db.DB)
 	}
@@ -41,7 +52,11 @@ func Server() {
 	}
 
 	// Start the server on port -
-	if err := app.Listen(":3030"); err != nil {
-		logger.ErrorLogger.Fatalf("error in run api server, error = %v \n", err)
+	if os.Getenv("LISTEN_ADDRESS") == "" {
+		logger.ErrorLogger.Fatalln("LISTEN_ADDRESS have to be set in the .env file")
+	} else {
+		if err := app.Listen(os.Getenv("LISTEN_ADDRESS")); err != nil {
+			logger.ErrorLogger.Fatalf("error in run api server, error = %v \n", err)
+		}
 	}
 }
