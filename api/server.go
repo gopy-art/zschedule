@@ -4,6 +4,7 @@ import (
 	"zschedule/api/database"
 	"zschedule/api/handler"
 	"zschedule/api/model"
+	"zschedule/api/worker"
 	logger "zschedule/log"
 
 	"github.com/gofiber/fiber/v3"
@@ -20,6 +21,12 @@ func Server() {
 		logger.ErrorLogger.Fatalf("error in connect to the postgres, error = %v \n", err)
 	}
 	db.CreateTables(&model.ScheduleAPI{})
+
+	{
+		wschedule := new(worker.ScheduleWorker)
+		go wschedule.Run(db.DB)
+		go wschedule.CheckForRun(db.DB)
+	}
 
 	{
 		handler := handler.SchedulerHandler{

@@ -1,15 +1,19 @@
 package model
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
 type ScheduleAPI struct {
 	gorm.Model
-	Name       string `json:"name"`
-	Command    string `json:"command"`
-	Interval   int    `json:"interval"`
-	Limit      int    `json:"limit"`
+	Name     string    `json:"name"`
+	Command  string    `json:"command"`
+	Interval int       `json:"interval"`
+	Limit    int       `json:"limit"`
+	Current  int       `json:"current"`
+	Next     time.Time `json:"next"`
 }
 
 func (s *ScheduleAPI) Add(con *gorm.DB) error {
