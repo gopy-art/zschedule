@@ -8,6 +8,7 @@
 
 <div align="center">
 <img src="./prometheus.png" width="800"> <br><br>
+<p align="center">simple and fast scheduler over http and commad line</p>
 </div>
 
 # ZSCHEDULE
