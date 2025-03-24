@@ -12,6 +12,7 @@ var (
 	EnvFile    string
 	Logger     string
 	Type       string
+	Prometheus string
 	Version    bool
 )
 
@@ -33,6 +34,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&ConfigFile, "config", "c", "", "set the path of the config file. (for example : /var/config/json)")
 	rootCmd.Flags().StringVarP(&Type, "type", "t", "", "set the type of the module. (api, cli)")
 	rootCmd.Flags().StringVar(&EnvFile, "env", "", "set the .env file path for api server configuration.")
+	rootCmd.Flags().StringVar(&Prometheus, "pr", "", "set the address of the prometheus. (0.0.0.0:1234)")
 	rootCmd.Flags().StringVarP(&Logger, "logger", "l", "stdout", "set app logger type , stdout or file")
 	rootCmd.Flags().BoolVarP(&Version, "version", "v", false, "zschedule version")
 }

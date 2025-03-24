@@ -3,9 +3,12 @@ package worker
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
 	"time"
 	"zschedule/api/model"
+	console "zschedule/cmd"
 	logger "zschedule/log"
+	"zschedule/prometheus"
 
 	"github.com/gopy-art/zrediss/connection"
 	"gorm.io/gorm"
@@ -66,6 +69,11 @@ func (w *ScheduleWorker) Run(db *gorm.DB) {
 		}
 
 		logger.SuccessLogger.Printf("The [ %v ] command has been executed for the %d time", task.Name, task.Current+1)
+
+		if console.Prometheus != "" {
+			prometheus.IncreaseTotalCount()
+			prometheus.IncreaseScheduleInfoCount(task.Command, task.Name, strconv.Itoa(task.Interval), strconv.Itoa(task.Current+1))
+		}
 
 		if err = db.Model(&model.ScheduleAPI{}).Where("ID = ?", task.ID).Updates(&model.ScheduleAPI{
 			Current: task.Current + 1,

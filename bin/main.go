@@ -7,6 +7,7 @@ import (
 	"zschedule/cli"
 	"zschedule/cmd"
 	logger "zschedule/log"
+	"zschedule/prometheus"
 
 	"github.com/joho/godotenv"
 )
@@ -36,6 +37,10 @@ func init() {
 		logger.InitLoggerStdout()
 	} else if cmd.Logger == "file" {
 		logger.InitLoggerFile(zMinioBaseDir + "/zminio.log")
+	}
+
+	if cmd.Prometheus != "" {
+		go prometheus.PrometheusInit(cmd.Prometheus)
 	}
 }
 

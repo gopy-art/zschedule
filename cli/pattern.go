@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"sync"
 	"time"
-	"zschedule/cmd"
+	console "zschedule/cmd"
 	"zschedule/configs"
 	logger "zschedule/log"
+	"zschedule/prometheus"
 
 	"github.com/gopy-art/zrediss/connection"
 )
@@ -23,7 +25,7 @@ type Scheduler struct {
 func NewScheduler() (schedule *Scheduler, ere error) {
 	var err error
 	schedule = new(Scheduler)
-	if schedule.Aliases, err = configs.ReadConfigFile(cmd.ConfigFile); err != nil {
+	if schedule.Aliases, err = configs.ReadConfigFile(console.ConfigFile); err != nil {
 		return nil, err
 	}
 	schedule.WaitGroup = sync.WaitGroup{}
@@ -68,6 +70,11 @@ func (s *Scheduler) Run() {
 						logger.ErrorLogger.Printf("error in set output in the cache, error = %v\n", err)
 					}
 
+					if console.Prometheus != "" {
+						prometheus.IncreaseTotalCount()
+						prometheus.IncreaseScheduleInfoCount(schedule.Command, schedule.Name, strconv.Itoa(schedule.Interval), strconv.Itoa(count))
+					}
+
 					logger.SuccessLogger.Printf("The [ %v ] command has been executed for the %d time", schedule.Name, count)
 					count++
 					time.Sleep(time.Second * time.Duration(schedule.Interval))
@@ -90,6 +97,11 @@ func (s *Scheduler) Run() {
 						fmt.Sprintf("OUTPUT : %v", string(result)),
 					); err != nil {
 						logger.ErrorLogger.Printf("error in set output in the cache, error = %v\n", err)
+					}
+
+					if console.Prometheus != "" {
+						prometheus.IncreaseTotalCount()
+						prometheus.IncreaseScheduleInfoCount(schedule.Command, schedule.Name, strconv.Itoa(schedule.Interval), strconv.Itoa(count+1)+"/"+strconv.Itoa(schedule.Limit))
 					}
 
 					logger.SuccessLogger.Printf("The [ %v ] command has been executed for the %d/%d time", schedule.Name, count+1, schedule.Limit)
